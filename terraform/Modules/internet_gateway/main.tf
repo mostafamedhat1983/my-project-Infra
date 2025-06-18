@@ -1,4 +1,4 @@
-resource "aws_internet_gateway" "gw" {
+resource "aws_internet_gateway" "this" {
   vpc_id = vpc_id
 
   tags = {
