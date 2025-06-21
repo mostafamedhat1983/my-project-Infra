@@ -14,3 +14,8 @@ module "public_subnet" {
   name = "${each.value.name}_public_subnet_${each.key}"
   
 }
+
+module "internet_gateway" {
+vpc_id = module.vpc.vpc_id
+name = "main"
+}
