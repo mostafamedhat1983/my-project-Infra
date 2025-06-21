@@ -11,9 +11,6 @@ module "public_subnet" {
   vpc_id     = module.vpc.vpc_id
   cidr_block = each.value.cidr_block
   availability_zone = each.value.availability_zone
-  map_public_ip_on_launch = true
+  Name = "${var.name}_public_subnet_${each.key}"
   
-  tags = {
-    Name = "${var.name}_public_subnet_${each.key}"
-  }
 }
