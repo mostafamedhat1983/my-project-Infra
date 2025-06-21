@@ -16,6 +16,7 @@ module "public_subnet" {
 }
 
 module "internet_gateway" {
+source = "../Modules/internet_gateway"  
 vpc_id = module.vpc.vpc_id
 name = "main"
 }
