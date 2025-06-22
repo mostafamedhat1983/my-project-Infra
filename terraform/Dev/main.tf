@@ -26,3 +26,12 @@ source = "../Modules/eip"
 for_each = var.subnet_config
 name = each.key
 }
+
+module "private_subnet" {
+for_each = var.private_subnet_config  
+source = "../Modules/private_subnet"
+vpc_id = module.vpc.vpc_id
+cidr_block = each.value.cidr_block
+availability_zone = each.value.availability_zone
+name = "${each.value.name}_private_subnet_${each.value.availability_zone}"
+}
