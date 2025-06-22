@@ -20,3 +20,9 @@ source = "../Modules/internet_gateway"
 vpc_id = module.vpc.vpc_id
 name = "main"
 }
+
+module "eip" {
+source = "../Modules/eip"  
+for_each = var.subnet_config
+name = each.key
+}
