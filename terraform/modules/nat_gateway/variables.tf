@@ -1,8 +1,8 @@
-variable "eip_id" {
+variable "allocation_id" {
   type = string
 }
 
-variable "public_subnet_id" {
+variable "subnet_id" {
   type = string
 }
 
