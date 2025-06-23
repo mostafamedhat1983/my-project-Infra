@@ -1,11 +1,11 @@
 module "vpc" {
-  source = "../Modules/VPC"
+  source = "../modules/VPC"
   cidr_block = "10.0.0.0/16"
   name = "vpc_main"
 }
 
 module "public_subnet" {
-  source = "../Modules/public_subnet"
+  source = "../modules/public_subnet"
   for_each = var.subnet_config
   
   vpc_id     = module.vpc.vpc_id
@@ -16,22 +16,31 @@ module "public_subnet" {
 }
 
 module "internet_gateway" {
-source = "../Modules/internet_gateway"  
+source = "../modules/internet_gateway"  
 vpc_id = module.vpc.vpc_id
 name = "main"
 }
 
 module "eip" {
-source = "../Modules/eip"  
+source = "../modules/eip"  
 for_each = var.subnet_config
 name = each.key
 }
 
 module "private_subnet" {
+source = "../modules/private_subnet"
 for_each = var.private_subnet_config  
-source = "../Modules/private_subnet"
 vpc_id = module.vpc.vpc_id
 cidr_block = each.value.cidr_block
 availability_zone = each.value.availability_zone
 name = "${each.value.name}_private_subnet_${each.value.availability_zone}"
+}
+
+module "nat_gateway"{
+source = "../modules/nat_gateway"
+for_each = var.subnet_config
+allocation_id = module.eip[each.key].eip_id
+subnet_id = module.public_subnet[each.key].public_subnet_id
+name= each.key
+
 }
