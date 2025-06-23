@@ -39,8 +39,8 @@ name = "${each.value.name}_private_subnet_${each.value.availability_zone}"
 module "nat_gateway"{
 source = "../modules/nat_gateway"
 for_each = var.subnet_config
-allocation_id = module.eip[each.key].eip_id
-subnet_id = module.public_subnet[each.key].public_subnet_id
+eip_id = module.eip[each.key].eip_id
+public_subnet_id = module.public_subnet[each.key].public_subnet_id
 name= each.key
 
 }
