@@ -42,5 +42,4 @@ for_each = var.subnet_config
 eip_id = module.eip[each.key].eip_id
 public_subnet_id = module.public_subnet[each.key].public_subnet_id
 name= each.key
-
 }
