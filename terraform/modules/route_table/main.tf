@@ -10,3 +10,8 @@ resource "aws_route_table" "this" {
     Name = var.name
   }
 }
+
+resource "aws_route_table_association" "a" {
+  subnet_id      = var.subnet_id
+  route_table_id = aws_route_table.this.id
+}
