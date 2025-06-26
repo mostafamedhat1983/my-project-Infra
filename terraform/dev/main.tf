@@ -53,7 +53,7 @@ name = "public_route_table_${each.key}"
 subnet_id = module.public_subnet[each.key].public_subnet_id
 }
 
-module "private_route_table"{
+module "private_route_table_2a"{
 for_each = var.private_subnet_config
 source = "../modules/route_table"
 vpc_id = module.vpc.vpc_id
@@ -63,7 +63,7 @@ name = "private_route_table_us-east-2a"
 subnet_id = module.private_subnet["1"].subnet_id
 }
 
-module "private_route_table"{
+module "private_route_table_2b"{
 for_each = var.private_subnet_config
 source = "../modules/route_table"
 vpc_id = module.vpc.vpc_id
