@@ -1,0 +1,29 @@
+---
+- name: Retrieve SSH key from SSM
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Get private key from SSM Parameter Store
+      amazon.aws.aws_ssm:
+        name: "/keypairs/my-ansible-key/private-key"
+        decrypt: yes
+      register: ssh_private_key
+
+    - name: Create temporary key file
+      copy:
+        content: "{{ ssh_private_key.parameter_value }}"
+        dest: "/tmp/ansible_key.pem"
+        mode: '0600'
+
+    - name: Display key file location
+      debug:
+        msg: "SSH key saved to /tmp/ansible_key.pem"
+
+    #  other tasks here...
+    #  other tasks here...
+    #  other tasks here...
+
+    - name: Delete temporary key file
+      file:
+        path: "/tmp/ansible_key.pem"
+        state: absent
