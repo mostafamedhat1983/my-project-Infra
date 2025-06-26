@@ -70,3 +70,8 @@ gateway_id = module.nat_gateway["us-east-2b"].nat_gateway_id
 name = "private_route_table_us-east-2b"
 subnet_id = module.private_subnet["2"].private_subnet_id
 }
+
+module "key_pair"{
+source = "../modules/key_pair" 
+name = "mykey"
+}
