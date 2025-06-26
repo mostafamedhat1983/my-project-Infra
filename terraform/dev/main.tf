@@ -49,7 +49,7 @@ for_each = var.subnet_config
 source = "../modules/route_table"
 vpc_id = module.vpc.vpc_id
 cidr_block = "0.0.0.0/0"
-gateway_id = module.internet_gateway.gateway_id
+gateway_id = module.internet_gateway.internet_gateway_id
 name = "public_route_table_${each.key}"
 subnet_id = module.public_subnet[each.key].public_subnet_id
 }
