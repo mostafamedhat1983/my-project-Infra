@@ -1,4 +1,4 @@
-variable "key_name" {
+variable "name" {
   description = "Name for the key pair"
   type        = string
 }
