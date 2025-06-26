@@ -54,7 +54,6 @@ subnet_id = module.public_subnet[each.key].public_subnet_id
 }
 
 module "private_route_table_2a"{
-
 source = "../modules/route_table"
 vpc_id = module.vpc.vpc_id
 cidr_block = "0.0.0.0/0"
@@ -64,7 +63,6 @@ subnet_id = module.private_subnet["1"].private_subnet_id
 }
 
 module "private_route_table_2b"{
-
 source = "../modules/route_table"
 vpc_id = module.vpc.vpc_id
 cidr_block = "0.0.0.0/0"
