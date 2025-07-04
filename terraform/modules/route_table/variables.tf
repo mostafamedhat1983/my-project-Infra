@@ -14,7 +14,8 @@ variable "name" {
   type = string
 }
 
-variable "subnet_ids" {
-  description = "A list of subnet IDs to associate with the route table."
-  type        = list(string)
+variable "subnets_to_associate" {
+  description = "A map of subnets to associate. Keys are for for_each, values are the subnet IDs."
+  type        = map(string)
+  default     = {}
 }
