@@ -12,6 +12,7 @@ resource "aws_route_table" "this" {
 }
 
 resource "aws_route_table_association" "this" {
-  subnet_id      = var.subnet_id
+  for_each       = toset(var.subnet_ids)
+  subnet_id      = each.key
   route_table_id = aws_route_table.this.id
 }

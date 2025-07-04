@@ -50,7 +50,7 @@ vpc_id = module.vpc.vpc_id
 cidr_block = "0.0.0.0/0"
 gateway_id = module.internet_gateway.internet_gateway_id
 name = "public_route_table_${each.key}"
-subnet_id = module.public_subnet[each.key].public_subnet_id
+subnet_ids = [module.public_subnet[each.key].public_subnet_id]
 }
 
 module "private_route_table_2a"{
@@ -59,7 +59,10 @@ vpc_id = module.vpc.vpc_id
 cidr_block = "0.0.0.0/0"
 gateway_id = module.nat_gateway["us-east-2a"].nat_gateway_id
 name = "private_route_table_us-east-2a"
-subnet_id = module.private_subnet["1"].private_subnet_id
+subnet_ids = [
+  module.private_subnet["1"].private_subnet_id, # jenkins in us-east-2a
+  module.private_subnet["3"].private_subnet_id  # eks in us-east-2a
+]
 }
 
 module "private_route_table_2b"{
@@ -68,7 +71,10 @@ vpc_id = module.vpc.vpc_id
 cidr_block = "0.0.0.0/0"
 gateway_id = module.nat_gateway["us-east-2b"].nat_gateway_id
 name = "private_route_table_us-east-2b"
-subnet_id = module.private_subnet["2"].private_subnet_id
+subnet_ids = [
+  module.private_subnet["2"].private_subnet_id, # jenkins in us-east-2b
+  module.private_subnet["4"].private_subnet_id  # eks in us-east-2b
+]
 }
 
 module "key_pair"{
