@@ -93,3 +93,9 @@ module "ec2" {
   subnet_id         = module.private_subnet[each.key].private_subnet_id
   tags              = each.value.tags
 }
+
+module "role" {
+source            = "../modules/role"  
+name = "ec2-ssm-role"
+policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
