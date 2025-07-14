@@ -83,3 +83,13 @@ module "key_pair"{
 source = "../modules/key_pair" 
 name = "mykey"
 }
+
+module "ec2" {
+  source            = "../modules/ec2"
+  for_each          = var.ec2_config
+  ami               = each.value.ami
+  instance_type     = each.value.instance_type
+  availability_zone = each.value.availability_zone
+  subnet_id         = module.private_subnet[each.key].private_subnet_id
+  tags              = each.value.tags
+}
