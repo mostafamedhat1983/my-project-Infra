@@ -1,10 +1,7 @@
-data "aws_caller_identity" "current" {}
-
 resource "aws_iam_role" "this" {
   name = var.name
 
-  # This is the minimum required trust policy.
-  # It allows the root user of the account to assume the role.
+  # Allows EC2 instances to assume this role.
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -12,7 +9,7 @@ resource "aws_iam_role" "this" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          Service = "ec2.amazonaws.com"
         }
       },
     ]
