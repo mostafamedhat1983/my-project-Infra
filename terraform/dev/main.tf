@@ -92,6 +92,7 @@ module "ec2" {
   availability_zone = each.value.availability_zone
   subnet_id         = module.private_subnet[each.key].private_subnet_id
   tags              = each.value.tags
+  iam_instance_profile = module.role.instance_profile_name
 }
 
 module "role" {

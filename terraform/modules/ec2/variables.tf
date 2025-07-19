@@ -23,3 +23,9 @@ variable "subnet_id" {
   description = "The Subnet ID for the EC2 instance"
   type        = string
 }
+
+variable "iam_instance_profile" {
+  description = "The IAM instance profile to associate with the instance."
+  type        = string
+  default     = null
+}
