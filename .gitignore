@@ -3,3 +3,6 @@
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+
+# Documentation and notes
+docs/

@@ -1,16 +1,17 @@
 module "network" {
   source = "../modules/network"
 
-  vpc_name = "vpc_main"
+  vpc_name       = "vpc_main"
   vpc_cidr_block = "10.0.0.0/16"
 
-  public_subnets = var.subnet_config
+  public_subnets  = var.subnet_config
   private_subnets = var.private_subnet_config
 
-  igw_name = "main"
-  sg_name = "default_sg"
-  sg_description = "Default security group"
-  sg_rules = {}
+  igw_name           = "main"
+  sg_name            = "default_sg"
+  sg_description     = "Default security group"
+  sg_rules           = {}
+  nat_gateway_count  = 1
 }
 
 module "key_pair" {

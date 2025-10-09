@@ -35,8 +35,14 @@ resource "aws_internet_gateway" "this" {
   }
 }
 
+locals {
+  nat_subnets = var.nat_gateway_count == 1 ? {
+    "us-east-2a" = var.public_subnets["us-east-2a"]
+  } : var.public_subnets
+}
+
 resource "aws_eip" "nat" {
-  for_each = var.public_subnets
+  for_each = local.nat_subnets
   domain   = "vpc"
   tags = {
     Name = "${each.value.name}-${each.key}-eip"
@@ -44,7 +50,7 @@ resource "aws_eip" "nat" {
 }
 
 resource "aws_nat_gateway" "this" {
-  for_each = var.public_subnets
+  for_each      = local.nat_subnets
   allocation_id = aws_eip.nat[each.key].id
   subnet_id     = aws_subnet.public[each.key].id
 
@@ -75,11 +81,11 @@ resource "aws_route_table_association" "public" {
 
 resource "aws_route_table" "private" {
   for_each = var.private_subnets
-  vpc_id = aws_vpc.this.id
+  vpc_id   = aws_vpc.this.id
 
   route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.this[each.value.availability_zone].id
+    cidr_block     = "0.0.0.0/0
+    nat_gateway_id = var.nat_gateway_count == 1 ? aws_nat_gateway.this["us-east-2a"].id : aws_nat_gateway.this[each.value.availability_zone].id
   }
 
   tags = {
