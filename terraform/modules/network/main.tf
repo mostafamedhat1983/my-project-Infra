@@ -84,7 +84,7 @@ resource "aws_route_table" "private" {
   vpc_id   = aws_vpc.this.id
 
   route {
-    cidr_block     = "0.0.0.0/0
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = var.nat_gateway_count == 1 ? aws_nat_gateway.this["us-east-2a"].id : aws_nat_gateway.this[each.value.availability_zone].id
   }
 
@@ -99,24 +99,106 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private[each.key].id
 }
 
-resource "aws_security_group" "this" {
-  name        = var.sg_name
-  description = var.sg_description
+# Jenkins Security Group
+resource "aws_security_group" "jenkins" {
+  name        = "jenkins-sg"
+  description = "Security group for Jenkins instances"
   vpc_id      = aws_vpc.this.id
 
   tags = {
-    Name = var.sg_name
+    Name = "jenkins-sg"
   }
 }
 
-resource "aws_security_group_rule" "this" {
-  for_each = var.sg_rules
-  type              = each.value.type
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  cidr_blocks       = each.value.cidr_blocks
-  source_security_group_id = each.value.source_security_group_id
-  security_group_id = aws_security_group.this.id
-  description = each.value.description
+resource "aws_security_group_rule" "jenkins_agent" {
+  type                     = "ingress"
+  from_port                = 50000
+  to_port                  = 50000
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.jenkins.id
+  security_group_id        = aws_security_group.jenkins.id
+  description              = "Jenkins agent communication"
+}
+
+resource "aws_security_group_rule" "jenkins_outbound" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.jenkins.id
+  description       = "Allow all outbound traffic"
+}
+
+# RDS Security Group
+resource "aws_security_group" "rds" {
+  name        = "rds-sg"
+  description = "Security group for RDS database"
+  vpc_id      = aws_vpc.this.id
+
+  tags = {
+    Name = "rds-sg"
+  }
+}
+
+resource "aws_security_group_rule" "rds_from_eks" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.eks_node.id
+  security_group_id        = aws_security_group.rds.id
+  description              = "MySQL access from EKS nodes"
+}
+
+# EKS Node Security Group
+resource "aws_security_group" "eks_node" {
+  name        = "eks-node-sg"
+  description = "Security group for EKS worker nodes"
+  vpc_id      = aws_vpc.this.id
+
+  tags = {
+    Name = "eks-node-sg"
+  }
+}
+
+resource "aws_security_group_rule" "eks_node_self" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  source_security_group_id = aws_security_group.eks_node.id
+  security_group_id        = aws_security_group.eks_node.id
+  description              = "Allow nodes to communicate with each other"
+}
+
+resource "aws_security_group_rule" "eks_node_outbound" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.eks_node.id
+  description       = "Allow all outbound traffic"
+}
+
+# VPC Endpoint Security Group
+resource "aws_security_group" "vpc_endpoints" {
+  name        = "vpc-endpoints-sg"
+  description = "Security group for VPC endpoints"
+  vpc_id      = aws_vpc.this.id
+
+  tags = {
+    Name = "vpc-endpoints-sg"
+  }
+}
+
+resource "aws_security_group_rule" "vpc_endpoints_https" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = [var.vpc_cidr_block]
+  security_group_id = aws_security_group.vpc_endpoints.id
+  description       = "HTTPS from VPC"
 }

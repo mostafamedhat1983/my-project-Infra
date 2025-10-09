@@ -36,9 +36,24 @@ output "route_table_ids" {
   description = "The IDs of the route tables"
 }
 
-output "security_group_id" {
-  value = aws_security_group.this.id
-  description = "The ID of the security group"
+output "jenkins_sg_id" {
+  value       = aws_security_group.jenkins.id
+  description = "Jenkins security group ID"
+}
+
+output "rds_sg_id" {
+  value       = aws_security_group.rds.id
+  description = "RDS security group ID"
+}
+
+output "eks_node_sg_id" {
+  value       = aws_security_group.eks_node.id
+  description = "EKS node security group ID"
+}
+
+output "vpc_endpoints_sg_id" {
+  value       = aws_security_group.vpc_endpoints.id
+  description = "VPC endpoints security group ID"
 }
 
 output "eip_ids" {
