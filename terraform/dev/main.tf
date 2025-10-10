@@ -11,11 +11,6 @@ module "network" {
   nat_gateway_count = 1
 }
 
-module "key_pair" {
-  source = "../modules/key_pair"
-  name   = "mykey"
-}
-
 module "ec2" {
   source                 = "../modules/ec2"
   for_each               = var.ec2_config
