@@ -1,18 +1,3 @@
-output "rds_endpoint" {
-  value       = module.rds.db_address
-  description = "RDS instance hostname"
-}
-
-output "rds_port" {
-  value       = module.rds.db_port
-  description = "RDS instance port"
-}
-
-output "rds_database" {
-  value       = module.rds.db_name
-  description = "Database name"
-}
-
 output "vpc_id" {
   value       = module.network.vpc_id
   description = "VPC ID"

@@ -39,9 +39,8 @@ variable "storage_size" {
   type        = number
 }
 
-variable "db_name" {
-  description = "The name of the database to create"
-  type        = string
+variable "secret_name" {
+  type = string
 }
 
 variable "engine" {
@@ -56,16 +55,6 @@ variable "engine_version" {
 
 variable "instance_class" {
   description = "The instance class of the database"
-  type        = string
-}
-
-variable "username" {
-  description = "The username for the database"
-  type        = string
-}
-
-variable "password" {
-  description = "The password for the database"
   type        = string
 }
 

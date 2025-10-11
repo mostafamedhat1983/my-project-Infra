@@ -34,6 +34,7 @@ module "rds" {
 
   identifier             = "todo-db-dev"
   db_subnet_group_name   = "todo-db-subnet-group-dev"
+  secret_name            = "todo-db-dev-credentials"
   
   subnet_ids = [
     module.network.private_subnet_ids["5"],
@@ -44,13 +45,9 @@ module "rds" {
   
   storage_size           = 20
   storage_type           = "gp3"
-  db_name                = "todo_db"
   engine                 = "mysql"
   engine_version         = "8.0"
   instance_class         = "db.t3.micro"
-  
-  username               = "root"
-  password               = "password"
   
   multi_az                = false
   backup_retention_period = 1
