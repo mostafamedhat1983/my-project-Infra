@@ -3,8 +3,8 @@ variable "name" {
   type        = string
 }
 
-variable "policy_arn" {
-  description = "The ARN of the IAM policy to attach"
-  type        = string
+variable "policy_arns" {
+  description = "The ARN of the IAM policy ARNs to attach"
+  type        = list(string)
 }
 
