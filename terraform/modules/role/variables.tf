@@ -8,3 +8,8 @@ variable "policy_arns" {
   type        = list(string)
 }
 
+variable "service" {
+  description = "The service that will assume this role"
+  type        = string
+  default = "ec2.amazonaws.com"
+}
