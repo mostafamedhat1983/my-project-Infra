@@ -23,12 +23,26 @@ module "ec2" {
   iam_instance_profile   = module.jenkins_role.instance_profile_name
 }
 
+resource "aws_iam_policy" "jenkins_eks" {
+  name        = "jenkins-eks-access"
+  description = "Allow Jenkins to describe EKS clusters for deployment"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["eks:DescribeCluster"]
+      Resource = "*"
+    }]
+  })
+}
+
 module "jenkins_role" {
   source = "../modules/role"
   name   = "ec2-ssm-ecr-role"
   policy_arns = [
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser",
+    aws_iam_policy.jenkins_eks.arn
   ]
 }
 

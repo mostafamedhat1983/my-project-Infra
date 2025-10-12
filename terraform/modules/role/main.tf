@@ -17,9 +17,9 @@ resource "aws_iam_role" "this" {
 }
 
 resource "aws_iam_role_policy_attachment" "this" {
+  count      = length(var.policy_arns)
   role       = aws_iam_role.this.name
-  for_each = toset(var.policy_arns)
-  policy_arn = each.value
+  policy_arn = var.policy_arns[count.index]
 }
 
 resource "aws_iam_instance_profile" "this" {
