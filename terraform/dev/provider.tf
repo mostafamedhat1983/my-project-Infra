@@ -15,7 +15,10 @@ provider "aws" {
 
   default_tags {
     tags = {
-      ENV = "Dev"
+      Environment = "dev"
+      Project     = "todo-app"
+      ManagedBy   = "terraform"
+      Owner       = "Mostafa"
     }
   }
 }
