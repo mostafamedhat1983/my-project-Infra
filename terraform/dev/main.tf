@@ -20,15 +20,34 @@ module "ec2" {
   subnet_id              = module.network.private_subnet_ids[each.key]
   vpc_security_group_ids = [module.network.jenkins_sg_id]
   tags                   = each.value.tags
-  iam_instance_profile   = module.role.instance_profile_name
+  iam_instance_profile   = module.jenkins_role.instance_profile_name
 }
 
-module "role" {
+module "jenkins_role" {
   source = "../modules/role"
   name   = "ec2-ssm-ecr-role"
   policy_arns = [
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
     "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+  ]
+}
+
+module "eks_cluster_role" {
+  source = "../modules/role"
+  name   = "EKS-cluster-role"
+  service = "eks.amazonaws.com"
+  policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  ]
+}
+
+module "eks_node_role" {
+  source = "../modules/role"
+  name   = "EKS-node-role"
+  policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
   ]
 }
 
