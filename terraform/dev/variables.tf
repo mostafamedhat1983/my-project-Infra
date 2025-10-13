@@ -25,32 +25,32 @@ variable "private_subnet_config" {
     name              = string
   }))
   default = {
-    "1" = {
+    "jenkins-2a" = {
       cidr_block        = "10.0.3.0/24"
       availability_zone = "us-east-2a"
       name              = "jenkins"
     }
-    "2" = {
+    "jenkins-2b" = {
       cidr_block        = "10.0.4.0/24"
       availability_zone = "us-east-2b"
       name              = "jenkins"
     }
-    "3" = {
+    "eks-2a" = {
       cidr_block        = "10.0.5.0/24"
       availability_zone = "us-east-2a"
       name              = "eks"
     }
-    "4" = {
+    "eks-2b" = {
       cidr_block        = "10.0.6.0/24"
       availability_zone = "us-east-2b"
       name              = "eks"
     }
-    "5" = {
+    "rds-2a" = {
       cidr_block        = "10.0.7.0/24"
       availability_zone = "us-east-2a"
       name              = "rds"
     }
-    "6" = {
+    "rds-2b" = {
       cidr_block        = "10.0.8.0/24"
       availability_zone = "us-east-2b"
       name              = "rds"
@@ -66,13 +66,13 @@ variable "ec2_config" {
     tags              = map(string)
   }))
   default = {
-    "1" = {
+    "jenkins-2a" = {
       ami               = "ami-0eb9d6fc9fab44d24"
       instance_type     = "t2.medium"
       availability_zone = "us-east-2a"
       tags              = { Name = "jenkins_main" }
     }
-    "2" = {
+    "jenkins-2b" = {
       ami               = "ami-0eb9d6fc9fab44d24"
       instance_type     = "t2.medium"
       availability_zone = "us-east-2b"

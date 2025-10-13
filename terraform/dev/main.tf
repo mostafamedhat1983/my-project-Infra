@@ -73,8 +73,8 @@ module "rds" {
   secret_name          = "todo-db-dev-credentials"
 
   subnet_ids = [
-    module.network.private_subnet_ids["5"],
-    module.network.private_subnet_ids["6"]
+    module.network.private_subnet_ids["rds-2a"],
+    module.network.private_subnet_ids["rds-2b"]
   ]
 
   vpc_security_group_ids = [module.network.rds_sg_id]
@@ -103,8 +103,8 @@ module "eks" {
   jenkins_role_arn    = module.jenkins_role.role_arn
   
   subnet_ids = [
-    module.network.private_subnet_ids["3"],
-    module.network.private_subnet_ids["4"]
+    module.network.private_subnet_ids["eks-2a"],
+    module.network.private_subnet_ids["eks-2b"]
   ]
 
   endpoint_private_access = true
