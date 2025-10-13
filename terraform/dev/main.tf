@@ -108,7 +108,7 @@ module "eks" {
   ]
 
   endpoint_private_access = true
-  endpoint_public_access  = true
+  endpoint_public_access  = false
 
   node_group_name    = "todo-app-dev-nodes"
   node_desired_size  = 2
