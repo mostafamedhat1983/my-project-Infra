@@ -6,5 +6,9 @@ resource "aws_instance" "this" {
   vpc_security_group_ids = var.vpc_security_group_ids
   iam_instance_profile   = var.iam_instance_profile
 
+  root_block_device {
+    encrypted = true
+  }
+
   tags = var.tags
 }
