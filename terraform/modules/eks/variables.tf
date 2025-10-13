@@ -1,55 +1,68 @@
 variable "cluster_name" {
-  type = string
+  description = "Name of the EKS cluster"
+  type        = string
 }
 
 variable "cluster_role_arn" {
-  type = string
+  description = "ARN of the IAM role for EKS cluster"
+  type        = string
 }
 
 variable "subnet_ids" {
-  type = list(string)
+  description = "List of subnet IDs for the EKS cluster"
+  type        = list(string)
 }
 
 variable "endpoint_private_access" {
-  type    = bool
-  default = true
+  description = "Enable private API server endpoint"
+  type        = bool
+  default     = true
 }
 
 variable "endpoint_public_access" {
-  type    = bool
-  default = true
+  description = "Enable public API server endpoint"
+  type        = bool
+  default     = true
 }
 
 variable "node_group_name" {
-  type = string
+  description = "Name of the EKS node group"
+  type        = string
 }
 
 variable "node_role_arn" {
-  type = string
+  description = "ARN of the IAM role for EKS worker nodes"
+  type        = string
 }
 
 variable "node_desired_size" {
-  type = number
+  description = "Desired number of worker nodes"
+  type        = number
 }
 
 variable "node_max_size" {
-  type = number
+  description = "Maximum number of worker nodes"
+  type        = number
 }
 
 variable "node_min_size" {
-  type = number
+  description = "Minimum number of worker nodes"
+  type        = number
 }
 
 variable "instance_types" {
-  type    = list(string)
-  default = ["t3.medium"]
+  description = "List of instance types for worker nodes"
+  type        = list(string)
+  default     = ["t3.medium"]
 }
 
 variable "disk_size" {
-  type    = number
-  default = 20
+  description = "Disk size in GB for worker nodes"
+  type        = number
+  default     = 20
 }
 
 variable "jenkins_role_arn" {
-  type = string
+  description = "ARN of the Jenkins IAM role for EKS access"
+  type        = string
 }

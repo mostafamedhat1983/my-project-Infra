@@ -40,7 +40,8 @@ variable "storage_size" {
 }
 
 variable "secret_name" {
-  type = string
+  description = "Name of the Secrets Manager secret containing RDS credentials"
+  type        = string
 }
 
 variable "engine" {

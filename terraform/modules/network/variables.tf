@@ -1,29 +1,34 @@
 variable "vpc_name" {
-  type = string
+  description = "Name of the VPC"
+  type        = string
 }
 
 variable "vpc_cidr_block" {
-  type = string
+  description = "CIDR block for the VPC"
+  type        = string
 }
 
 variable "public_subnets" {
+  description = "Map of public subnet configurations"
   type = map(object({
     cidr_block        = string
     availability_zone = string
-    name = string
+    name              = string
   }))
 }
 
 variable "private_subnets" {
+  description = "Map of private subnet configurations"
   type = map(object({
     cidr_block        = string
     availability_zone = string
-    name = string
+    name              = string
   }))
 }
 
 variable "igw_name" {
-  type = string
+  description = "Name of the Internet Gateway"
+  type        = string
 }
 
 variable "nat_gateway_count" {
