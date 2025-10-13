@@ -29,6 +29,8 @@ resource "aws_eks_cluster" "this" {
   role_arn = var.cluster_role_arn
   version  = "1.31"
 
+  enabled_cluster_log_types = ["api", "audit", "authenticator"]
+
   access_config {
     authentication_mode = "API"
   }
