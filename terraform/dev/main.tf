@@ -93,3 +93,27 @@ module "rds" {
     Name = "todo-db-dev"
   }
 }
+
+module "eks" {
+  source = "../modules/eks"
+
+  cluster_name        = "todo-app-dev"
+  cluster_role_arn    = module.eks_cluster_role.role_arn
+  node_role_arn       = module.eks_node_role.role_arn
+  jenkins_role_arn    = module.jenkins_role.role_arn
+  
+  subnet_ids = [
+    module.network.private_subnet_ids["3"],
+    module.network.private_subnet_ids["4"]
+  ]
+
+  endpoint_private_access = true
+  endpoint_public_access  = true
+
+  node_group_name    = "todo-app-dev-nodes"
+  node_desired_size  = 2
+  node_max_size      = 3
+  node_min_size      = 1
+  instance_types     = ["t3.small"]
+  disk_size          = 20
+}
