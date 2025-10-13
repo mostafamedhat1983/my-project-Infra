@@ -37,8 +37,9 @@ resource "aws_internet_gateway" "this" {
 
 locals {
   nat_subnets = var.nat_gateway_count == 1 ? {
-    "us-east-2a" = var.public_subnets["us-east-2a"]
+    for k, v in var.public_subnets : k => v if k == keys(var.public_subnets)[0]
   } : var.public_subnets
+  first_nat_key = keys(local.nat_subnets)[0]
 }
 
 resource "aws_eip" "nat" {
@@ -85,7 +86,7 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = var.nat_gateway_count == 1 ? aws_nat_gateway.this["us-east-2a"].id : aws_nat_gateway.this[each.value.availability_zone].id
+    nat_gateway_id = var.nat_gateway_count == 1 ? aws_nat_gateway.this[local.first_nat_key].id : aws_nat_gateway.this[each.value.availability_zone].id
   }
 
   tags = {
