@@ -217,6 +217,9 @@ This project was built with the assistance of **Amazon Q** and **Gemini Code Ass
 **The Result:**
 Using AI tools saved hours of documentation writing and syntax debugging, allowing me to focus on understanding AWS services, making design decisions, and solving real infrastructure problems. Every line of code was reviewed, understood, and intentionally committed.
 
+**Production Environment Creation:**
+Amazon Q replicated the dev environment to production by adjusting only variable values (NAT gateways, RDS configuration, instance sizes) - demonstrating how modular design enables rapid environment scaling. This saved hours of manual file creation and reduced human error.
+
 **Think of it like:** Using Stack Overflow or AWS documentation, but interactive and context-aware. The learning and problem-solving were still mine.
 
 ## 🎓 What I Learned
