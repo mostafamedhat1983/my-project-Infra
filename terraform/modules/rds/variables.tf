@@ -75,3 +75,9 @@ variable "skip_final_snapshot" {
   type        = bool
   default     = true
 }
+
+variable "final_snapshot_identifier" {
+  description = "The name of the final DB snapshot when skip_final_snapshot is false"
+  type        = string
+  default     = null
+}

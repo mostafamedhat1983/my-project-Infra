@@ -88,6 +88,7 @@ module "rds" {
   multi_az                = true
   backup_retention_period = 7
   skip_final_snapshot     = false
+  final_snapshot_identifier = "todo-db-prod-final-snapshot"
 
   tags = {
     Name = "todo-db-prod"

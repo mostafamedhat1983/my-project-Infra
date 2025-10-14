@@ -31,6 +31,7 @@ resource "aws_db_instance" "this" {
   storage_encrypted = true
   backup_retention_period = var.backup_retention_period 
   skip_final_snapshot  = var.skip_final_snapshot #true in dev for faster deletion
+  final_snapshot_identifier = var.final_snapshot_identifier
   tags = var.tags
 }
 
