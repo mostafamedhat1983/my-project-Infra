@@ -32,7 +32,8 @@ This project includes two complete environments: **Development** and **Productio
 
 ## 🛠️ What Makes This Project Different
 
-### Real Problem-Solving Journey
+<details>
+<summary><b>Real Problem-Solving Journey (Click to expand)</b></summary>
 
 This project went through actual code reviews and iterative improvements. Here's what we tackled:
 
@@ -58,7 +59,7 @@ This project went through actual code reviews and iterative improvements. Here's
 - **Unrestricted Egress:** Standard practice for both environments; restricting requires expensive VPC endpoints ($50-100/month)
 - **S3 Native Locking:** Using modern S3 native state locking (2024 feature) instead of DynamoDB
 
-### Modern AWS Practices & Advanced Features
+#### Modern AWS Practices & Advanced Features
 
 This project uses several modern AWS features and best practices that differentiate it from typical tutorial projects:
 
@@ -67,6 +68,8 @@ This project uses several modern AWS features and best practices that differenti
 3. **ECR with IAM Authentication** - No Docker Hub credentials needed, fully integrated with AWS IAM
 4. **Secrets Manager Integration Pattern** - Terraform reads secrets AND updates them with connection details (bidirectional)
 5. **Flexible IAM Role Module** - Single module supports multiple AWS services via `service` variable (DRY principle)
+
+</details>
 
 ## 📁 Project Structure
 
@@ -97,6 +100,62 @@ terraform/
 - ✅ SSM Session Manager for secure access (no bastion host or SSH keys)
 - ✅ Secrets Manager for database credentials
 - ✅ KMS key rotation enabled
+
+<details>
+<summary><b>🔒 Security & Secrets Management - Zero Secret Exposure (Click to expand)</b></summary>
+
+This project follows strict security practices to ensure **no secrets are ever exposed**:
+
+### Secrets Manager Integration
+**How Secrets Are Handled:**
+- ✅ RDS credentials stored in AWS Secrets Manager (encrypted at rest with KMS)
+- ✅ Secrets created **manually outside Terraform** (never in code or Git)
+- ✅ Terraform reads secrets via `data` source (no plaintext exposure)
+- ✅ Passwords **never appear** in:
+  - Git repository
+  - Terraform code
+  - Terraform state files (state is encrypted in S3)
+  - CI/CD logs
+  - Container images
+- ✅ Secrets Manager automatically updates with RDS endpoint after creation
+- ✅ Future: External Secrets Operator will sync to Kubernetes (encrypted with KMS)
+
+### Encryption at Every Layer
+**Data at Rest:**
+- ✅ **RDS:** Database encrypted with AWS-managed keys
+- ✅ **EBS:** All EC2 volumes encrypted by default
+- ✅ **EKS:** Kubernetes secrets encrypted with KMS key (created by Terraform)
+- ✅ **S3:** Terraform state encrypted in S3 bucket
+- ✅ **Secrets Manager:** All secrets encrypted with KMS
+
+**Data in Transit:**
+- ✅ All AWS API calls use TLS 1.2+
+- ✅ RDS connections encrypted
+- ✅ EKS API endpoint uses TLS
+
+### IAM Security (No Hardcoded Credentials)
+- ✅ EC2 instances use IAM roles (not access keys)
+- ✅ Jenkins accesses AWS services via instance profile
+- ✅ Least privilege policies (Jenkins can only access its own cluster)
+- ✅ No AWS credentials in code, environment variables, or config files
+- ✅ No root account usage
+
+### Network Security
+- ✅ All workloads in private subnets (no direct internet access)
+- ✅ RDS not publicly accessible
+- ✅ EKS API endpoint private-only (no public access)
+- ✅ Security groups with specific rules (no 0.0.0.0/0 ingress)
+- ✅ NAT Gateway for controlled outbound access
+
+### Audit & Monitoring
+- ✅ EKS control plane logging to CloudWatch
+- ✅ SSM session logging to CloudWatch
+- ✅ All IAM actions logged via CloudTrail (AWS default)
+- ✅ Secrets Manager access logged
+
+**Result:** Zero secrets in code, zero secrets in Git, zero secrets exposed. All sensitive data encrypted and access-controlled.
+
+</details>
 
 ## 💡 Key Technical Decisions
 
@@ -274,6 +333,9 @@ service = "eks.amazonaws.com"      # For EKS cluster
 
 ## 🚀 Deployment
 
+<details>
+<summary><b>Deployment Steps (Click to expand)</b></summary>
+
 ### Prerequisites
 - AWS CLI configured
 - Terraform >= 1.0
@@ -324,6 +386,8 @@ aws ssm start-session --target <jenkins-instance-id>
 # Update kubeconfig
 aws eks update-kubeconfig --name todo-app-dev --region us-east-2
 ```
+
+</details>
 
 ## 📊 Cost Breakdown
 
@@ -396,6 +460,9 @@ Amazon Q replicated the dev environment to production by adjusting only variable
 
 ## 🔄 Evolution of This Project
 
+<details>
+<summary><b>Project Journey: From Basic to Production-Ready (Click to expand)</b></summary>
+
 **Initial Version:**
 - Basic VPC and EC2 setup
 - Hardcoded values everywhere
@@ -410,6 +477,8 @@ Amazon Q replicated the dev environment to production by adjusting only variable
 - Descriptive naming
 - Comprehensive documentation
 - Production-ready security
+
+</details>
 
 ## 📝 Lessons Learned
 
