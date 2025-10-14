@@ -1,13 +1,13 @@
 module "network" {
   source = "../modules/network"
 
-  vpc_name       = "vpc_main"
+  vpc_name       = "vpc-dev"
   vpc_cidr_block = "10.0.0.0/16"
 
   public_subnets  = var.subnet_config
   private_subnets = var.private_subnet_config
 
-  igw_name          = "main"
+  igw_name          = "igw-dev"
   nat_gateway_count = 1
 }
 

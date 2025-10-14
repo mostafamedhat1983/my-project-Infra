@@ -260,7 +260,6 @@ Amazon Q replicated the dev environment to production by adjusting only variable
 
 - [ ] Multi-AZ RDS with read replicas
 - [ ] 2 NAT Gateways for high availability
-- [ ] VPC Endpoints for AWS services
 - [ ] GuardDuty for threat detection
 - [ ] AWS Config for compliance monitoring
 - [ ] Automated secret rotation

@@ -1,13 +1,13 @@
 module "network" {
   source = "../modules/network"
 
-  vpc_name       = "vpc_main"
+  vpc_name       = "vpc-prod"
   vpc_cidr_block = "10.0.0.0/16"
 
   public_subnets  = var.subnet_config
   private_subnets = var.private_subnet_config
 
-  igw_name          = "main"
+  igw_name          = "igw-prod"
   nat_gateway_count = 2
 }
 
@@ -79,7 +79,7 @@ module "rds" {
 
   vpc_security_group_ids = [module.network.rds_sg_id]
 
-  storage_size   = 20
+  storage_size   = 50
   storage_type   = "gp3"
   engine         = "mysql"
   engine_version = "8.0"
@@ -116,5 +116,5 @@ module "eks" {
   node_max_size     = 5
   node_min_size     = 2
   instance_types    = ["t3.medium"]
-  disk_size         = 20
+  disk_size         = 30
 }
