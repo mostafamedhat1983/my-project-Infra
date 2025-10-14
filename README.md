@@ -327,7 +327,9 @@ aws eks update-kubeconfig --name todo-app-dev --region us-east-2
 
 ## 📊 Cost Breakdown
 
-### Development Environment
+<details>
+<summary><b>Development Environment (~$180/month)</b></summary>
+
 | Service | Configuration | Monthly Cost |
 |---------|--------------|--------------|
 | NAT Gateway | 1x NAT | ~$35 |
@@ -337,7 +339,11 @@ aws eks update-kubeconfig --name todo-app-dev --region us-east-2
 | EKS Worker Nodes | 2x t3.small | ~$30 |
 | **Total** | | **~$180/month** |
 
-### Production Environment
+</details>
+
+<details>
+<summary><b>Production Environment (~$340/month)</b></summary>
+
 | Service | Configuration | Monthly Cost |
 |---------|--------------|--------------|
 | NAT Gateway | 2x NAT (HA) | ~$70 |
@@ -352,6 +358,8 @@ aws eks update-kubeconfig --name todo-app-dev --region us-east-2
 - Prod uses larger instance types for better performance (+$60/month)
 - Prod uses Multi-AZ RDS with more storage and longer backups (+$35/month)
 - Prod uses 3 larger EKS nodes instead of 2 smaller ones (+$60/month)
+
+</details>
 
 ## 🤖 AI-Assisted Development
 
