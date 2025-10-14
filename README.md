@@ -54,7 +54,7 @@ This project went through actual code reviews and iterative improvements. Here's
 **Why we kept certain "issues":**
 - **Hardcoded AMI ID:** Intentional for stability - using "latest" AMI causes unpredictable changes
 - **Jenkins Admin Policy:** Required for our pipeline that manages cluster infrastructure (namespaces, metrics-server, Prometheus)
-- **Unrestricted Egress:** Acceptable for dev; restricting requires expensive VPC endpoints ($50-100/month)
+- **Unrestricted Egress:** Standard practice for both environments; restricting requires expensive VPC endpoints ($50-100/month)
 - **S3 Native Locking:** Using modern S3 native state locking (2024 feature) instead of DynamoDB
 
 ### Modern AWS Practices & Advanced Features
@@ -83,7 +83,7 @@ terraform/
 │   ├── rds/              # RDS with Secrets Manager integration
 │   ├── role/             # Flexible IAM role module
 │   └── eks/              # Complete EKS setup (cluster, nodes, OIDC, access)
-└── prod/                 # Production environment (future)
+└── prod/                 # Production environment (complete)
 ```
 
 ## 🔐 Security Features
@@ -138,7 +138,7 @@ terraform/
 - 30GB disk per node
 - Better performance and more headroom for scaling
 
-### 3. SSM Session Manager (No Bastion Host)
+### 4. SSM Session Manager (No Bastion Host)
 Using AWS Systems Manager Session Manager instead of traditional bastion hosts or jump servers:
 
 **Why SSM over Bastion:**
@@ -174,13 +174,13 @@ aws ssm start-session --target <jenkins-instance-id> \
 # Then access: http://localhost:8080
 ```
 
-### 4. Secrets Management
+### 5. Secrets Management
 Manual secret creation (outside Terraform) ensures:
 - Secrets persist across `terraform destroy`
 - Passwords never appear in code or Git
 - Terraform reads and updates with connection details
 
-### 5. Jenkins Per-Environment Strategy
+### 6. Jenkins Per-Environment Strategy
 **Why Jenkins in Both Dev and Prod:**
 
 This project deploys Jenkins instances in both dev and prod environments for complete isolation:
@@ -207,7 +207,7 @@ This project deploys Jenkins instances in both dev and prod environments for com
 **Alternative Approach:**
 In many organizations, a single Jenkins in a "tools" account deploys to all environments. Both approaches are valid - this project chose per-environment isolation for learning and security demonstration.
 
-### 6. Environment-Specific Variables Strategy
+### 7. Environment-Specific Variables Strategy
 **Why Hardcoded Defaults Instead of .tfvars:**
 
 This project intentionally uses hardcoded default values in `variables.tf` for each environment rather than `.tfvars` files:
@@ -240,7 +240,7 @@ ec2_config = {
 
 For this project, explicit defaults in `variables.tf` provide better transparency and learning value than `.tfvars` files.
 
-### 7. IAM Role Module Flexibility
+### 8. IAM Role Module Flexibility
 Supports multiple AWS services via `service` variable:
 ```hcl
 service = "ec2.amazonaws.com"      # For EC2 instances
