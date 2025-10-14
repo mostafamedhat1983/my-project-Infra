@@ -75,19 +75,19 @@ This project uses several modern AWS features and best practices that differenti
 
 ```
 terraform/
-├── dev/
-│   ├── main.tf           # Main configuration with all module calls
-│   ├── variables.tf      # Environment-specific variables
-│   ├── outputs.tf        # Infrastructure outputs
-│   ├── provider.tf       # AWS provider with default tags
-│   └── backend.tf        # S3 backend with native locking
-├── modules/
-│   ├── network/          # VPC, subnets, NAT, security groups
-│   ├── ec2/              # EC2 instances with encrypted EBS
-│   ├── rds/              # RDS with Secrets Manager integration
-│   ├── role/             # Flexible IAM role module
-│   └── eks/              # Complete EKS setup (cluster, nodes, OIDC, access)
-└── prod/                 # Production environment (complete)
+├── dev/                  # Development environment
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── provider.tf
+│   └── backend.tf
+├── prod/                 # Production environment (same files as dev)
+└── modules/
+    ├── network/          # VPC, subnets, NAT, security groups
+    ├── ec2/              # EC2 instances with encrypted EBS
+    ├── rds/              # RDS with Secrets Manager integration
+    ├── role/             # Flexible IAM role module
+    └── eks/              # Complete EKS setup (cluster, nodes, OIDC, access)
 ```
 
 ## 🔐 Security Features
