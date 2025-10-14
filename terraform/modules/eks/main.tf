@@ -27,7 +27,7 @@ resource "aws_kms_alias" "this" {
 resource "aws_eks_cluster" "this" {
   name     = var.cluster_name
   role_arn = var.cluster_role_arn
-  version  = "1.31"
+  version  = var.cluster_version
 
   enabled_cluster_log_types = ["api", "audit", "authenticator"]
 
