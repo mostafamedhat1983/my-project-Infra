@@ -431,7 +431,7 @@ Amazon Q replicated the dev environment to production by adjusting only variable
 - [ ] RDS read replicas for prod (if read-heavy workload)
 - [ ] GuardDuty for threat detection
 - [ ] AWS Config for compliance monitoring
-- [ ] Automated secret rotation with Lambda
+- [ ] Enable Secrets Manager automatic rotation for RDS
 - [ ] CloudWatch dashboards and alarms
 - [ ] AWS Backup for automated backup management
 - [ ] WAF for application-level protection
