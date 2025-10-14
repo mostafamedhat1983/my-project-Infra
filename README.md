@@ -42,6 +42,7 @@ This project went through actual code reviews and iterative improvements. Here's
 3. **EKS Secrets Encryption** - Implemented KMS encryption for Kubernetes secrets
 4. **Public Endpoint Security** - Disabled EKS public endpoint, using SSM for secure access
 5. **EKS Audit Logging** - Enabled control plane logging for security monitoring
+6. **Jenkins IAM Least Privilege** - Restricted Jenkins EKS access to specific cluster ARNs instead of wildcard
 
 #### Code Quality Improvements
 1. **Descriptive Naming** - Replaced numeric subnet keys ("1", "2", "3") with meaningful names ("jenkins-2a", "eks-2a", "rds-2a")
@@ -240,7 +241,31 @@ ec2_config = {
 
 For this project, explicit defaults in `variables.tf` provide better transparency and learning value than `.tfvars` files.
 
-### 8. IAM Role Module Flexibility
+### 8. Jenkins IAM Permissions (Least Privilege)
+**Scoped EKS Access:**
+
+Jenkins IAM policy is restricted to only the specific EKS cluster in its environment:
+
+**Dev Jenkins:**
+```hcl
+Resource = module.eks.cluster_arn  # Only todo-app-dev
+```
+
+**Prod Jenkins:**
+```hcl
+Resource = module.eks.cluster_arn  # Only todo-app-prod
+```
+
+**Why not use wildcard (*):**
+- ✅ **Least Privilege:** Jenkins can only access its own cluster
+- ✅ **Security:** Prevents accidental access to other EKS clusters
+- ✅ **Compliance:** Follows AWS IAM best practices
+- ✅ **Blast Radius:** Limits impact if Jenkins credentials are compromised
+
+**Alternative (Not Used):**
+Using `Resource = "*"` would allow Jenkins to describe all EKS clusters in the account, which violates the principle of least privilege.
+
+### 9. IAM Role Module Flexibility
 Supports multiple AWS services via `service` variable:
 ```hcl
 service = "ec2.amazonaws.com"      # For EC2 instances
