@@ -1,1 +1,279 @@
-# ToDo-Infra
+# Todo App Infrastructure - AWS EKS with Terraform
+
+A production-ready AWS infrastructure built from scratch for deploying a containerized todo application on EKS. This project demonstrates real-world DevOps practices, security hardening, and infrastructure as code principles.
+
+## 🎯 Project Overview
+
+This isn't just another copied infrastructure project. Every line of code here was written with intention, reviewed, debugged, and improved through multiple iterations. The infrastructure evolved from basic requirements to a secure, scalable, production-ready setup.
+
+## 🏗️ Architecture
+
+**Environment:** Development (optimized for learning and cost ~$180/month)
+
+**Core Components:**
+- **VPC:** 2 Availability Zones with 8 subnets (2 public, 6 private)
+- **Compute:** 2 Jenkins EC2 instances (t2.medium) for CI/CD
+- **Database:** RDS MySQL 8.0 (single-AZ, encrypted)
+- **Kubernetes:** EKS 1.31 cluster with 2 t3.small worker nodes
+- **Networking:** 1 NAT Gateway (cost-optimized for dev)
+- **Container Registry:** ECR for Docker images
+- **Secrets:** AWS Secrets Manager for RDS credentials
+
+## 🛠️ What Makes This Project Different
+
+### Real Problem-Solving Journey
+
+This project went through actual code reviews and iterative improvements. Here's what we tackled:
+
+#### Security Hardening
+1. **EBS Encryption** - Added encryption for all EC2 volumes (initially missing)
+2. **RDS Encryption** - Ensured database encryption at rest
+3. **EKS Secrets Encryption** - Implemented KMS encryption for Kubernetes secrets
+4. **Public Endpoint Security** - Disabled EKS public endpoint, using SSM for secure access
+5. **EKS Audit Logging** - Enabled control plane logging for security monitoring
+
+#### Code Quality Improvements
+1. **Descriptive Naming** - Replaced numeric subnet keys ("1", "2", "3") with meaningful names ("jenkins-2a", "eks-2a", "rds-2a")
+2. **Variable Documentation** - Added descriptions to all module variables for better maintainability
+3. **Dynamic Configuration** - Removed hardcoded availability zones from NAT gateway setup
+4. **Modular Design** - Created reusable modules for network, EC2, RDS, IAM roles, and EKS
+
+#### Design Decisions (With Reasoning)
+
+**Why we kept certain "issues":**
+- **Hardcoded AMI ID:** Intentional for stability - using "latest" AMI causes unpredictable changes
+- **Jenkins Admin Policy:** Required for our pipeline that manages cluster infrastructure (namespaces, metrics-server, Prometheus)
+- **Unrestricted Egress:** Acceptable for dev; restricting requires expensive VPC endpoints ($50-100/month)
+- **S3 Native Locking:** Using modern S3 native state locking (2024 feature) instead of DynamoDB
+
+### Modern AWS Practices & Advanced Features
+
+This project uses several modern AWS features and best practices that differentiate it from typical tutorial projects:
+
+1. **S3 Native State Locking (2024)** - Using `use_lockfile = true` instead of DynamoDB (most projects still use the old method)
+2. **EKS Access Entry API (2023)** - Modern `authentication_mode = "API"` instead of legacy aws-auth ConfigMap
+3. **ECR with IAM Authentication** - No Docker Hub credentials needed, fully integrated with AWS IAM
+4. **Secrets Manager Integration Pattern** - Terraform reads secrets AND updates them with connection details (bidirectional)
+5. **Flexible IAM Role Module** - Single module supports multiple AWS services via `service` variable (DRY principle)
+
+## 📁 Project Structure
+
+```
+terraform/
+├── dev/
+│   ├── main.tf           # Main configuration with all module calls
+│   ├── variables.tf      # Environment-specific variables
+│   ├── outputs.tf        # Infrastructure outputs
+│   ├── provider.tf       # AWS provider with default tags
+│   └── backend.tf        # S3 backend with native locking
+├── modules/
+│   ├── network/          # VPC, subnets, NAT, security groups
+│   ├── ec2/              # EC2 instances with encrypted EBS
+│   ├── rds/              # RDS with Secrets Manager integration
+│   ├── role/             # Flexible IAM role module
+│   └── eks/              # Complete EKS setup (cluster, nodes, OIDC, access)
+└── prod/                 # Production environment (future)
+```
+
+## 🔐 Security Features
+
+- ✅ All data encrypted at rest (EBS, RDS, EKS secrets, S3)
+- ✅ IAM roles with least privilege (no hardcoded credentials)
+- ✅ Private subnets for all workloads
+- ✅ Security groups with specific rules (no 0.0.0.0/0 ingress)
+- ✅ EKS control plane logging to CloudWatch
+- ✅ SSM Session Manager for secure access (no bastion host or SSH keys)
+- ✅ Secrets Manager for database credentials
+- ✅ KMS key rotation enabled
+
+## 💡 Key Technical Decisions
+
+### 1. NAT Gateway Strategy
+**Dev:** 1 NAT Gateway (~$35/month savings)
+**Prod:** 2 NAT Gateways (high availability)
+
+### 2. RDS Configuration
+**Dev:** Single-AZ, 1-day backup retention
+**Prod:** Multi-AZ, 7-day backup retention
+
+### 3. SSM Session Manager (No Bastion Host)
+Using AWS Systems Manager Session Manager instead of traditional bastion hosts or jump servers:
+
+**Why SSM over Bastion:**
+- ✅ No SSH keys to manage or rotate
+- ✅ No bastion host to maintain and patch
+- ✅ All sessions logged to CloudWatch
+- ✅ IAM-based access control
+- ✅ No inbound security group rules needed
+- ✅ Cost savings (~$15/month for bastion host)
+
+**Access Jenkins:**
+```bash
+aws ssm start-session --target <jenkins-instance-id>
+```
+
+**Access EKS via Jenkins EC2:**
+```bash
+# Connect to Jenkins via SSM
+aws ssm start-session --target <jenkins-instance-id>
+
+# Run kubectl from Jenkins instance
+kubectl get nodes
+kubectl get pods -A
+```
+
+**Port Forwarding (SSM Tunneling):**
+```bash
+# Access Jenkins UI locally
+aws ssm start-session --target <jenkins-instance-id> \
+  --document-name AWS-StartPortForwardingSession \
+  --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
+
+# Then access: http://localhost:8080
+```
+
+### 4. Secrets Management
+Manual secret creation (outside Terraform) ensures:
+- Secrets persist across `terraform destroy`
+- Passwords never appear in code or Git
+- Terraform reads and updates with connection details
+
+### 5. IAM Role Module Flexibility
+Supports multiple AWS services via `service` variable:
+```hcl
+service = "ec2.amazonaws.com"      # For EC2 instances
+service = "eks.amazonaws.com"      # For EKS cluster
+```
+
+## 🚀 Deployment
+
+### Prerequisites
+- AWS CLI configured
+- Terraform >= 1.0
+- S3 bucket for state (with encryption enabled)
+- Secrets Manager secret for RDS credentials
+
+### Steps
+
+1. **Create RDS Secret (one-time):**
+```bash
+aws secretsmanager create-secret \
+  --name todo-db-dev-credentials \
+  --secret-string '{"username":"admin","password":"YourPassword","dbname":"tododb"}'
+```
+
+2. **Initialize Terraform:**
+```bash
+cd terraform/dev
+terraform init
+```
+
+3. **Review Plan:**
+```bash
+terraform plan
+```
+
+4. **Deploy:**
+```bash
+terraform apply
+```
+
+5. **Configure kubectl:**
+```bash
+# Connect to Jenkins via SSM
+aws ssm start-session --target <jenkins-instance-id>
+
+# Update kubeconfig
+aws eks update-kubeconfig --name todo-app-dev --region us-east-2
+```
+
+## 📊 Cost Breakdown (Dev Environment)
+
+| Service | Configuration | Monthly Cost |
+|---------|--------------|--------------|
+| NAT Gateway | 1x NAT | ~$35 |
+| EC2 (Jenkins) | 2x t2.medium | ~$30 |
+| RDS MySQL | db.t3.micro, single-AZ | ~$15 |
+| EKS Control Plane | 1 cluster | $73 |
+| EKS Worker Nodes | 2x t3.small | ~$30 |
+| **Total** | | **~$180/month** |
+
+## 🤖 AI-Assisted Development
+
+This project was built with the assistance of **Amazon Q** and **Gemini Code Assist** - not to generate the entire codebase, but as productivity tools to accelerate development and learning.
+
+**How AI was used:**
+- **Code Review:** Identified security issues, best practices violations, and improvement opportunities
+- **Documentation:** Helped write clear variable descriptions and module documentation
+- **Debugging:** Assisted in troubleshooting Terraform syntax and AWS service configurations
+- **Learning:** Explained AWS concepts, Terraform patterns, and architectural decisions
+
+**What AI didn't do:**
+- Design the architecture (I made all architectural decisions)
+- Write modules from scratch (I built each module iteratively)
+- Make tradeoff decisions (I evaluated cost vs security vs complexity)
+- Understand project context (I provided requirements and constraints)
+
+**The Result:**
+Using AI tools saved hours of documentation writing and syntax debugging, allowing me to focus on understanding AWS services, making design decisions, and solving real infrastructure problems. Every line of code was reviewed, understood, and intentionally committed.
+
+**Think of it like:** Using Stack Overflow or AWS documentation, but interactive and context-aware. The learning and problem-solving were still mine.
+
+## 🎓 What I Learned
+
+1. **Infrastructure as Code:** Building modular, reusable Terraform modules
+2. **Security Best Practices:** Encryption, IAM roles, network isolation
+3. **Cost Optimization:** Strategic decisions for dev vs prod environments
+4. **AWS Services:** Deep dive into VPC, EKS, RDS, Secrets Manager, SSM
+5. **Code Review Process:** Iterative improvements based on feedback
+6. **Design Tradeoffs:** When to optimize for cost vs security vs simplicity
+
+## 🔄 Evolution of This Project
+
+**Initial Version:**
+- Basic VPC and EC2 setup
+- Hardcoded values everywhere
+- Missing encryption
+- Public EKS endpoint
+- Numeric subnet keys
+
+**After Multiple Iterations:**
+- Modular, reusable code
+- Full encryption at rest
+- Secure access patterns
+- Descriptive naming
+- Comprehensive documentation
+- Production-ready security
+
+## 📝 Lessons Learned
+
+1. **Hardcoded AMI is OK:** Stability > always-latest for production
+2. **Cost vs Security:** Dev environments can make reasonable tradeoffs
+3. **Documentation Matters:** Future-you will thank present-you
+4. **Modular Design:** Reusable modules save time and reduce errors
+5. **Security Layers:** Defense in depth (encryption + IAM + network + logging)
+
+## 🔮 Future Improvements (Production)
+
+- [ ] Multi-AZ RDS with read replicas
+- [ ] 2 NAT Gateways for high availability
+- [ ] VPC Endpoints for AWS services
+- [ ] GuardDuty for threat detection
+- [ ] AWS Config for compliance monitoring
+- [ ] Automated secret rotation
+- [ ] CloudWatch dashboards and alarms
+- [ ] Backup automation with AWS Backup
+
+## 🤝 Contributing
+
+This is a personal learning project, but feedback and suggestions are welcome! Feel free to open issues or reach out.
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+---
+
+**Built with:** Terraform, AWS, and lots of iteration 🚀
+
+**Note:** This infrastructure was built from the ground up, not copied from templates. Every decision was made consciously, every issue was debugged, and every improvement was earned through the learning process.
