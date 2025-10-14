@@ -8,16 +8,27 @@ This isn't just another copied infrastructure project. Every line of code here w
 
 ## 🏗️ Architecture
 
-**Environment:** Development (optimized for learning and cost ~$180/month)
+This project includes two complete environments: **Development** and **Production**.
 
-**Core Components:**
+### Development Environment (~$180/month)
+**Optimized for learning and cost:**
 - **VPC:** 2 Availability Zones with 8 subnets (2 public, 6 private)
 - **Compute:** 2 Jenkins EC2 instances (t2.medium) for CI/CD
-- **Database:** RDS MySQL 8.0 (single-AZ, encrypted)
-- **Kubernetes:** EKS 1.31 cluster with 2 t3.small worker nodes
-- **Networking:** 1 NAT Gateway (cost-optimized for dev)
+- **Database:** RDS MySQL 8.0 (single-AZ, 20GB, encrypted)
+- **Kubernetes:** EKS 1.34 cluster with 2 t3.small worker nodes (20GB disk)
+- **Networking:** 1 NAT Gateway (cost-optimized)
 - **Container Registry:** ECR for Docker images
 - **Secrets:** AWS Secrets Manager for RDS credentials
+
+### Production Environment (~$400-500/month)
+**Optimized for high availability and performance:**
+- **VPC:** Same architecture (2 AZs, 8 subnets) for consistency
+- **Compute:** 2 Jenkins EC2 instances (t3.medium) - more powerful
+- **Database:** RDS MySQL 8.0 (Multi-AZ, 50GB, 7-day backups, encrypted)
+- **Kubernetes:** EKS 1.34 cluster with 3 t3.medium worker nodes (30GB disk)
+- **Networking:** 2 NAT Gateways (one per AZ for high availability)
+- **Container Registry:** Shared ECR (same images, different tags)
+- **Secrets:** Separate Secrets Manager secrets per environment
 
 ## 🛠️ What Makes This Project Different
 
@@ -89,12 +100,43 @@ terraform/
 ## 💡 Key Technical Decisions
 
 ### 1. NAT Gateway Strategy
-**Dev:** 1 NAT Gateway (~$35/month savings)
-**Prod:** 2 NAT Gateways (high availability)
+**Dev:** 1 NAT Gateway in us-east-2a (shared across both AZs)
+- Cost: ~$35/month
+- Acceptable risk: If NAT fails, dev environment is down (not critical)
+- Cross-AZ traffic cost: ~$0.01/GB (minimal for dev workloads)
+
+**Prod:** 2 NAT Gateways (one per AZ)
+- Cost: ~$70/month
+- High availability: If one AZ fails, other AZ continues working
+- No cross-AZ traffic for NAT (each AZ uses its own NAT)
 
 ### 2. RDS Configuration
-**Dev:** Single-AZ, 1-day backup retention
-**Prod:** Multi-AZ, 7-day backup retention
+**Dev:** 
+- Single-AZ (us-east-2a only)
+- 20GB storage
+- 1-day backup retention
+- skip_final_snapshot = true (faster teardown)
+- Instance: db.t3.micro
+
+**Prod:**
+- Multi-AZ (automatic failover to standby in us-east-2b)
+- 50GB storage (room for growth)
+- 7-day backup retention (compliance/recovery)
+- skip_final_snapshot = false (safety)
+- Instance: db.t3.small (better performance)
+
+### 3. EKS Configuration
+**Dev:**
+- 2 worker nodes (t3.small)
+- Desired: 2, Min: 1, Max: 3
+- 20GB disk per node
+- Acceptable for development workloads
+
+**Prod:**
+- 3 worker nodes (t3.medium)
+- Desired: 3, Min: 2, Max: 5
+- 30GB disk per node
+- Better performance and more headroom for scaling
 
 ### 3. SSM Session Manager (No Bastion Host)
 Using AWS Systems Manager Session Manager instead of traditional bastion hosts or jump servers:
@@ -138,7 +180,67 @@ Manual secret creation (outside Terraform) ensures:
 - Passwords never appear in code or Git
 - Terraform reads and updates with connection details
 
-### 5. IAM Role Module Flexibility
+### 5. Jenkins Per-Environment Strategy
+**Why Jenkins in Both Dev and Prod:**
+
+This project deploys Jenkins instances in both dev and prod environments for complete isolation:
+
+**Dev Environment:**
+- 2x t2.medium Jenkins instances
+- Used for development, testing, and experimentation
+- Can be destroyed/recreated without affecting production
+- Lower cost, acceptable downtime
+
+**Prod Environment:**
+- 2x t3.medium Jenkins instances (more powerful)
+- Dedicated CI/CD for production deployments
+- Complete isolation from dev environment
+- No cross-environment dependencies
+
+**Why This Approach:**
+- ✅ **Complete Isolation:** Dev Jenkins failures don't affect prod deployments
+- ✅ **Security:** Prod credentials never touch dev environment
+- ✅ **Compliance:** Some regulations require separate tooling per environment
+- ✅ **Team Autonomy:** Different teams can manage different environments
+- ✅ **Learning Value:** Demonstrates how to scale infrastructure across environments
+
+**Alternative Approach:**
+In many organizations, a single Jenkins in a "tools" account deploys to all environments. Both approaches are valid - this project chose per-environment isolation for learning and security demonstration.
+
+### 6. Environment-Specific Variables Strategy
+**Why Hardcoded Defaults Instead of .tfvars:**
+
+This project intentionally uses hardcoded default values in `variables.tf` for each environment rather than `.tfvars` files:
+
+**Dev Environment (terraform/dev/variables.tf):**
+```hcl
+ec2_config = {
+  instance_type = "t2.medium"  # Visible in code
+}
+```
+
+**Prod Environment (terraform/prod/variables.tf):**
+```hcl
+ec2_config = {
+  instance_type = "t3.medium"  # Visible in code
+}
+```
+
+**Why This Approach:**
+- ✅ **Transparency:** Differences between environments are explicit and visible in Git
+- ✅ **Code Review:** Changes to environment config go through PR review
+- ✅ **Documentation:** The code itself documents what's different between dev/prod
+- ✅ **No Hidden Config:** Everything is in version control, nothing hidden in .tfvars
+- ✅ **Learning Value:** Makes it clear what changes between environments
+
+**When to Use .tfvars:**
+- Secrets or sensitive values (but we use Secrets Manager instead)
+- Frequently changing values (not applicable here)
+- Same codebase deployed to many environments (we have 2 well-defined environments)
+
+For this project, explicit defaults in `variables.tf` provide better transparency and learning value than `.tfvars` files.
+
+### 7. IAM Role Module Flexibility
 Supports multiple AWS services via `service` variable:
 ```hcl
 service = "ec2.amazonaws.com"      # For EC2 instances
@@ -155,11 +257,22 @@ service = "eks.amazonaws.com"      # For EKS cluster
 
 ### Steps
 
-1. **Create RDS Secret (one-time):**
+1. **Create RDS Secrets (one-time per environment):**
+
+**For Dev:**
 ```bash
 aws secretsmanager create-secret \
   --name todo-db-dev-credentials \
-  --secret-string '{"username":"admin","password":"YourPassword","dbname":"tododb"}'
+  --secret-string '{"username":"admin","password":"YourDevPassword","dbname":"tododb"}' \
+  --region us-east-2
+```
+
+**For Prod:**
+```bash
+aws secretsmanager create-secret \
+  --name todo-db-prod-credentials \
+  --secret-string '{"username":"admin","password":"YourStrongProdPassword","dbname":"tododb"}' \
+  --region us-east-2
 ```
 
 2. **Initialize Terraform:**
@@ -187,16 +300,33 @@ aws ssm start-session --target <jenkins-instance-id>
 aws eks update-kubeconfig --name todo-app-dev --region us-east-2
 ```
 
-## 📊 Cost Breakdown (Dev Environment)
+## 📊 Cost Breakdown
 
+### Development Environment
 | Service | Configuration | Monthly Cost |
 |---------|--------------|--------------|
 | NAT Gateway | 1x NAT | ~$35 |
 | EC2 (Jenkins) | 2x t2.medium | ~$30 |
-| RDS MySQL | db.t3.micro, single-AZ | ~$15 |
+| RDS MySQL | db.t3.micro, single-AZ, 20GB | ~$15 |
 | EKS Control Plane | 1 cluster | $73 |
 | EKS Worker Nodes | 2x t3.small | ~$30 |
 | **Total** | | **~$180/month** |
+
+### Production Environment
+| Service | Configuration | Monthly Cost |
+|---------|--------------|--------------|
+| NAT Gateway | 2x NAT (HA) | ~$70 |
+| EC2 (Jenkins) | 2x t3.medium | ~$60 |
+| RDS MySQL | db.t3.small, Multi-AZ, 50GB | ~$50 |
+| EKS Control Plane | 1 cluster | $73 |
+| EKS Worker Nodes | 3x t3.medium | ~$90 |
+| **Total** | | **~$340/month** |
+
+**Key Differences:**
+- Prod uses 2 NAT Gateways for high availability (+$35/month)
+- Prod uses larger instance types for better performance (+$60/month)
+- Prod uses Multi-AZ RDS with more storage and longer backups (+$35/month)
+- Prod uses 3 larger EKS nodes instead of 2 smaller ones (+$60/month)
 
 ## 🤖 AI-Assisted Development
 
