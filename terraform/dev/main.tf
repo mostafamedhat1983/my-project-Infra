@@ -31,7 +31,7 @@ resource "aws_iam_policy" "jenkins_eks" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["eks:DescribeCluster"]
-      Resource = "*"
+      Resource = module.eks.cluster_arn
     }]
   })
 }
