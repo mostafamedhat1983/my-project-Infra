@@ -20,7 +20,7 @@ This project includes two complete environments: **Development** and **Productio
 - **Container Registry:** ECR for Docker images
 - **Secrets:** AWS Secrets Manager for RDS credentials
 
-### Production Environment (~$400-500/month)
+### Production Environment (~$340/month)
 **Optimized for high availability and performance:**
 - **VPC:** Same architecture (2 AZs, 8 subnets) for consistency
 - **Compute:** 2 Jenkins EC2 instances (t3.medium) - more powerful
