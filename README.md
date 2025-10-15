@@ -506,6 +506,14 @@ Amazon Q replicated the dev environment to production by adjusting only variable
 - [ ] AWS Backup for automated backup management
 - [ ] WAF for application-level protection
 
+**Code Quality & Security Scanning:**
+- [ ] **pre-commit hooks** - Automated checks before git commits
+- [ ] **tflint** - Terraform linter for best practices and error detection
+- [ ] **tfsec** - Security scanner for Terraform code vulnerabilities
+- [ ] **terraform fmt** - Automated code formatting in CI/CD
+
+These tools are industry-standard for Terraform projects and would be ideal for implementation from project start. See `docs/terraform-quality-tools.md` for detailed setup instructions.
+
 ## 🤝 Contributing
 
 This is a personal learning project, but feedback and suggestions are welcome! Feel free to open issues or reach out.
