@@ -275,37 +275,24 @@ This project deploys Jenkins instances in both dev and prod environments for com
 In many organizations, a single Jenkins in a "tools" account deploys to all environments. Both approaches are valid - this project chose per-environment isolation for learning and security demonstration.
 
 ### 7. Environment-Specific Variables Strategy
-**Why Hardcoded Defaults Instead of .tfvars:**
+**Why No .tfvars Files:**
 
-This project intentionally uses hardcoded default values in `variables.tf` for each environment rather than `.tfvars` files:
-
-**Dev Environment (terraform/dev/variables.tf):**
-```hcl
-ec2_config = {
-  instance_type = "t2.medium"  # Visible in code
-}
-```
-
-**Prod Environment (terraform/prod/variables.tf):**
-```hcl
-ec2_config = {
-  instance_type = "t3.medium"  # Visible in code
-}
-```
+This project uses separate folders for each environment (terraform/dev, terraform/prod) with configuration defined directly in each folder's files.
 
 **Why This Approach:**
-- ✅ **Transparency:** Differences between environments are explicit and visible in Git
-- ✅ **Code Review:** Changes to environment config go through PR review
-- ✅ **Documentation:** The code itself documents what's different between dev/prod
-- ✅ **No Hidden Config:** Everything is in version control, nothing hidden in .tfvars
-- ✅ **Learning Value:** Makes it clear what changes between environments
 
-**When to Use .tfvars:**
-- Secrets or sensitive values (but we use Secrets Manager instead)
-- Frequently changing values (not applicable here)
-- Same codebase deployed to many environments (we have 2 well-defined environments)
+Since each environment has its own folder with its own `variables.tf` and `main.tf`, using `.tfvars` would add an extra file without benefit. With separate folders, environments are already clearly separated.
 
-For this project, explicit defaults in `variables.tf` provide better transparency and learning value than `.tfvars` files.
+**When .tfvars Makes Sense:**
+- Sharing the same Terraform code across multiple environments
+- Single codebase with `terraform apply -var-file=env.tfvars`
+- 5+ environments with identical infrastructure
+
+**Our Setup:**
+- 2 distinct environments (dev/prod)
+- Separate folders with environment-specific code
+- Configuration values directly in `variables.tf` and `main.tf`
+- Simpler and more straightforward for this use case
 
 ### 8. Jenkins IAM Permissions (Least Privilege)
 **Scoped EKS Access:**
