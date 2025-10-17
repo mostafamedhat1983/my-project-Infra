@@ -100,6 +100,7 @@ terraform/
 - ✅ SSM Session Manager for secure access (no bastion host or SSH keys)
 - ✅ Secrets Manager for database credentials
 - ✅ KMS key rotation enabled
+- ✅ S3 state file versioning enabled (protection against accidental deletion)
 
 <details>
 <summary><b>🔒 Security & Secrets Management - Zero Secret Exposure (Click to expand)</b></summary>
@@ -125,8 +126,14 @@ This project follows strict security practices to ensure **no secrets are ever e
 - ✅ **RDS:** Database encrypted with AWS-managed keys
 - ✅ **EBS:** All EC2 volumes encrypted by default
 - ✅ **EKS:** Kubernetes secrets encrypted with KMS key (created by Terraform)
-- ✅ **S3:** Terraform state encrypted in S3 bucket
+- ✅ **S3:** Terraform state encrypted in S3 bucket with versioning enabled
 - ✅ **Secrets Manager:** All secrets encrypted with KMS
+
+**State File Protection:**
+- ✅ S3 versioning enabled (recover from accidental deletion/corruption)
+- ✅ S3 native locking (prevents concurrent modifications)
+- ✅ Server-side encryption (state files encrypted at rest)
+- ✅ Separate buckets per environment (dev/prod isolation)
 
 **Data in Transit:**
 - ✅ All AWS API calls use TLS 1.2+
