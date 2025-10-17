@@ -42,7 +42,7 @@ module "eks" {
 | cluster_version | Kubernetes version for EKS cluster | `string` | `"1.34"` | no |
 | subnet_ids | List of subnet IDs for the EKS cluster | `list(string)` | n/a | yes |
 | endpoint_private_access | Enable private API server endpoint | `bool` | `true` | no |
-| endpoint_public_access | Enable public API server endpoint | `bool` | `true` | no |
+| endpoint_public_access | Enable public API server endpoint | `bool` | `false` | no |
 | node_group_name | Name of the EKS node group | `string` | n/a | yes |
 | node_desired_size | Desired number of worker nodes | `number` | n/a | yes |
 | node_max_size | Maximum number of worker nodes | `number` | n/a | yes |

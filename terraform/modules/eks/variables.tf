@@ -28,7 +28,7 @@ variable "endpoint_private_access" {
 variable "endpoint_public_access" {
   description = "Enable public API server endpoint"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "node_group_name" {
