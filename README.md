@@ -425,7 +425,7 @@ This project was built with the assistance of **Amazon Q** and **Gemini Code Ass
 
 **How AI was used:**
 - **Code Review:** Identified security issues, best practices violations, and improvement opportunities
-- **Documentation:** Helped write clear variable descriptions and module documentation
+- **Documentation:** Helped write clear variable descriptions and generated comprehensive README files for all Terraform modules
 - **Debugging:** Assisted in troubleshooting Terraform syntax and AWS service configurations
 - **Learning:** Explained AWS concepts, Terraform patterns, and architectural decisions
 
