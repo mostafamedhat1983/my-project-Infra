@@ -33,7 +33,29 @@ packer {
     ]
       provisioner "ansible" {
     playbook_file = "./ansible/jenkins-playbook.yml"
+    ansible_env_vars = [
+    "ANSIBLE_HOST_KEY_CHECKING=False"
+  ]
   }
+
+  provisioner "shell" {
+  inline = [
+    "sudo dnf install -y wget",
+    "wget -qO - https://aquasecurity.github.io/trivy-repo/rpm/public.key | sudo rpm --import -",
+    "sudo dnf install -y trivy",
+    "sudo trivy rootfs / --severity HIGH,CRITICAL --format json --output /tmp/trivy-report.json",
+    "sudo trivy rootfs / --severity HIGH,CRITICAL --format table"
+  ]
+}
+
+
+provisioner "file" {
+  source      = "/tmp/trivy-report.json"
+  destination = "trivy-report-${formatdate("YYYY-MM-DD-hhmm", timestamp())}.json"
+  direction   = "download"
+}
+
+
   
   }
 
