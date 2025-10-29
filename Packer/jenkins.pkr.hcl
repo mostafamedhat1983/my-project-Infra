@@ -55,7 +55,9 @@ provisioner "file" {
   direction   = "download"
 }
 
-
+post-processor "manifest" {
+    output = "manifest.json"
+  }
   
   }
 
