@@ -1,0 +1,42 @@
+---
+- name: Configure Jenkins Master AMI
+  hosts: all
+  become: true
+  tasks:
+    # System updates
+    - name: Update all system packages
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest  # noqa: package-latest
+        update_cache: true
+    # Install packages
+    - name: Install Docker, Java 21 Amazon Corretto, and Git
+      ansible.builtin.dnf:
+        name:
+          - docker
+          - java-21-amazon-corretto
+          - git
+        state: present
+    # Jenkins setup
+    - name: Import Jenkins GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+    - name: Add Jenkins repository
+      ansible.builtin.yum_repository:
+        name: jenkins
+        description: Jenkins stable repository
+        baseurl: https://pkg.jenkins.io/redhat-stable/
+        gpgcheck: true
+        enabled: true
+    - name: Install Jenkins
+      ansible.builtin.dnf:
+        name: jenkins
+        state: present
+    # Cleanup
+    - name: Remove unused packages
+      ansible.builtin.dnf:
+        autoremove: true
+    - name: Clean package manager cache
+      ansible.builtin.command: dnf clean all
+      changed_when: false
