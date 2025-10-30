@@ -33,6 +33,21 @@
       ansible.builtin.dnf:
         name: jenkins
         state: present
+    # Add jenkins user to docker group
+    - name: Add jenkins user to docker group
+      ansible.builtin.user:
+        name: jenkins
+        groups: docker
+        append: true
+    # Start and enable Docker and Jenkins services
+    - name: Start and enable services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop:
+        - docker
+        - jenkins
     # Cleanup
     - name: Remove unused packages
       ansible.builtin.dnf:
