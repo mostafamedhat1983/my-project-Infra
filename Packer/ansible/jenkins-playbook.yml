@@ -48,6 +48,20 @@
       loop:
         - docker
         - jenkins
+    # Install kubectl
+    - name: Add Kubernetes repository (new location)
+      ansible.builtin.yum_repository:
+        name: kubernetes
+        description: Kubernetes
+        baseurl: https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
+        enabled: true
+        gpgcheck: true
+        gpgkey: https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
+        exclude: kubelet kubeadm
+    - name: Install kubectl
+      ansible.builtin.dnf:
+        name: kubectl
+        state: present
     # Cleanup
     - name: Remove unused packages
       ansible.builtin.dnf:
