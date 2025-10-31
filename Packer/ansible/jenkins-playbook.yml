@@ -3,13 +3,15 @@
   hosts: all
   become: true
   tasks:
-    # System updates
+      #
+      # System updates
     - name: Update all system packages
       ansible.builtin.dnf:
         name: "*"
         state: latest  # noqa: package-latest
         update_cache: true
-    # Install packages
+      #
+      # Install packages
     - name: Install Docker, Java 21 Amazon Corretto, and Git
       ansible.builtin.dnf:
         name:
@@ -17,7 +19,8 @@
           - java-21-amazon-corretto
           - git
         state: present
-    # Jenkins setup
+      #
+      # Jenkins setup
     - name: Import Jenkins GPG key
       ansible.builtin.rpm_key:
         state: present
@@ -28,18 +31,19 @@
         description: Jenkins stable repository
         baseurl: https://pkg.jenkins.io/redhat-stable/
         gpgcheck: true
-        enabled: true
     - name: Install Jenkins
       ansible.builtin.dnf:
         name: jenkins
         state: present
-    # Add jenkins user to docker group
+      #
+      # Add jenkins user to docker group
     - name: Add jenkins user to docker group
       ansible.builtin.user:
         name: jenkins
         groups: docker
         append: true
-    # Start and enable Docker and Jenkins services
+      #
+      # Start and enable Docker and Jenkins services
     - name: Start and enable services
       ansible.builtin.systemd:
         name: "{{ item }}"
@@ -48,13 +52,13 @@
       loop:
         - docker
         - jenkins
-    # Install kubectl
-    - name: Add Kubernetes repository (new location)
+      #
+      # Install kubectl
+    - name: Add Kubernetes repository
       ansible.builtin.yum_repository:
         name: kubernetes
         description: Kubernetes
         baseurl: https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
-        enabled: true
         gpgcheck: true
         gpgkey: https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
         exclude: kubelet kubeadm
@@ -62,7 +66,53 @@
       ansible.builtin.dnf:
         name: kubectl
         state: present
-    # Cleanup
+      #
+      # Helm setup
+    - name: Add Helm GPG key
+      ansible.builtin.rpm_key:
+        state: present
+        key: https://baltocdn.com/helm/signing.asc
+    - name: Add Helm repository
+      ansible.builtin.yum_repository:
+        name: helm-stable
+        description: Helm Stable Repository
+        baseurl: https://baltocdn.com/helm/stable/rpm/
+        gpgcheck: true
+    - name: Install Helm
+      ansible.builtin.dnf:
+        name: helm
+        state: present
+      #
+      # eksctl setup
+    - name: Get latest eksctl version
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/weaveworks/eksctl/releases/latest
+        return_content: true
+      register: eksctl_latest
+      changed_when: false
+    - name: Download and install eksctl
+      ansible.builtin.get_url:
+        url: "https://github.com/weaveworks/eksctl/releases/download/{{ eksctl_latest.json.tag_name }}/eksctl_Linux_amd64.tar.gz"
+        dest: /tmp/eksctl.tar.gz
+        mode: '0644'
+    - name: Extract eksctl
+      ansible.builtin.unarchive:
+        src: /tmp/eksctl.tar.gz
+        dest: /usr/local/bin
+        remote_src: true
+        creates: /usr/local/bin/eksctl
+    - name: Set eksctl permissions
+      ansible.builtin.file:
+        path: /usr/local/bin/eksctl
+        mode: '0755'
+    - name: Clean up eksctl tarball
+      ansible.builtin.file:
+        path: /tmp/eksctl.tar.gz
+        state: absent
+      #
+      # Verification will added here later
+      #
+      # Cleanup
     - name: Remove unused packages
       ansible.builtin.dnf:
         autoremove: true
