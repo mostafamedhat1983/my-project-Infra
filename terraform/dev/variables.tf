@@ -60,20 +60,17 @@ variable "private_subnet_config" {
 
 variable "ec2_config" {
   type = map(object({
-    ami               = string
     instance_type     = string
     availability_zone = string
     tags              = map(string)
   }))
   default = {
     "jenkins-2a" = {
-      ami               = "ami-0eb9d6fc9fab44d24"
       instance_type     = "t2.medium"
       availability_zone = "us-east-2a"
       tags              = { Name = "jenkins_main" }
     }
     "jenkins-2b" = {
-      ami               = "ami-0eb9d6fc9fab44d24"
       instance_type     = "t2.medium"
       availability_zone = "us-east-2b"
       tags              = { Name = "jenkins_node" }

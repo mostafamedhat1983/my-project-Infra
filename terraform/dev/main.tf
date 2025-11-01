@@ -1,3 +1,13 @@
+data "aws_ami" "jenkins" {
+  most_recent = true
+  owners      = ["self"]
+
+  filter {
+    name   = "name"
+    values = ["jenkins-*"]
+  }
+}
+
 module "network" {
   source = "../modules/network"
 
@@ -14,7 +24,7 @@ module "network" {
 module "ec2" {
   source                 = "../modules/ec2"
   for_each               = var.ec2_config
-  ami                    = each.value.ami
+  ami                    = data.aws_ami.jenkins.id
   instance_type          = each.value.instance_type
   availability_zone      = each.value.availability_zone
   subnet_id              = module.network.private_subnet_ids[each.key]
