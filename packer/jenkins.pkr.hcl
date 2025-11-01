@@ -40,7 +40,11 @@ build {
   provisioner "ansible" {
     playbook_file = "./ansible/jenkins-playbook.yml"
     ansible_env_vars = [
-      "ANSIBLE_HOST_KEY_CHECKING=False"
+      "ANSIBLE_HOST_KEY_CHECKING=False",
+      "ANSIBLE_SCP_IF_SSH=True"
+    ]
+    extra_arguments = [
+      "--scp-extra-args", "'-O'"
     ]
   }
   
