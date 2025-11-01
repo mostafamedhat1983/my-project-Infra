@@ -83,34 +83,7 @@
         name: helm
         state: present
       #
-      # eksctl setup
-    - name: Get latest eksctl version
-      ansible.builtin.uri:
-        url: https://api.github.com/repos/weaveworks/eksctl/releases/latest
-        return_content: true
-      register: eksctl_latest
-      changed_when: false
-    - name: Download and install eksctl
-      ansible.builtin.get_url:
-        url: "https://github.com/weaveworks/eksctl/releases/download/{{ eksctl_latest.json.tag_name }}/eksctl_Linux_amd64.tar.gz"
-        dest: /tmp/eksctl.tar.gz
-        mode: '0644'
-    - name: Extract eksctl
-      ansible.builtin.unarchive:
-        src: /tmp/eksctl.tar.gz
-        dest: /usr/local/bin
-        remote_src: true
-        creates: /usr/local/bin/eksctl
-    - name: Set eksctl permissions
-      ansible.builtin.file:
-        path: /usr/local/bin/eksctl
-        mode: '0755'
-    - name: Clean up eksctl tarball
-      ansible.builtin.file:
-        path: /tmp/eksctl.tar.gz
-        state: absent
-      #
-      # Verification will added here later
+      # Verification will be added here later
       #
       # Cleanup
     - name: Remove unused packages
