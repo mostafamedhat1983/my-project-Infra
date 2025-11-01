@@ -66,9 +66,9 @@
       ansible.builtin.yum_repository:
         name: kubernetes
         description: Kubernetes
-        baseurl: https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
+        baseurl: https://pkgs.k8s.io/core:/stable:/v1.34/rpm/
         gpgcheck: true
-        gpgkey: https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
+        gpgkey: https://pkgs.k8s.io/core:/stable:/v1.34/rpm/repodata/repomd.xml.key
         exclude: kubelet kubeadm
     - name: Install kubectl
       ansible.builtin.dnf:

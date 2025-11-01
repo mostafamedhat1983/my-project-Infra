@@ -86,7 +86,7 @@ Jenkins instances use custom AMIs built with Packer and Ansible (not user data s
 - **Ansible:** Provisions using native modules (dnf, systemd, yum_repository)
 - **Trivy:** Vulnerability scanning (fails on HIGH/CRITICAL)
 
-**Installed:** Docker, Java 21 Corretto, Git, Jenkins, kubectl v1.28, Helm, AWS CLI
+**Installed:** Docker, Java 21 Corretto, Git, Jenkins, kubectl v1.34, Helm, AWS CLI
 
 **Security:** GPG verification for all repos, SSH password auth disabled, installation verification, vulnerability scanning
 
