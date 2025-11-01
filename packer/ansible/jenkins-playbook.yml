@@ -53,6 +53,14 @@
         - docker
         - jenkins
       #
+      # Security hardening
+    - name: Disable SSH password authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+      #
       # Install kubectl
     - name: Add Kubernetes repository
       ansible.builtin.yum_repository:
