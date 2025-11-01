@@ -95,7 +95,7 @@
       changed_when: false
       failed_when: java_version.rc != 0
     - name: Verify Git installation
-      ansible.builtin.command: git --version
+      ansible.builtin.command: git --version  # noqa: command-instead-of-module
       register: git_version
       changed_when: false
       failed_when: git_version.rc != 0
@@ -114,11 +114,6 @@
       register: helm_version
       changed_when: false
       failed_when: helm_version.rc != 0
-    - name: Verify AWS CLI installation
-      ansible.builtin.command: aws --version
-      register: aws_version
-      changed_when: false
-      failed_when: aws_version.rc != 0
       #
       # Cleanup
     - name: Remove unused packages
