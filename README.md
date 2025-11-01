@@ -8,7 +8,9 @@ Every line of code was written with intention, reviewed, debugged, and improved 
 
 ## 🏗️ Architecture
 
-Two complete environments: **Development** (~$180/month) and **Production** (~$340/month).
+Two complete environments:  
+**Development**  (~$180/month)  
+**Production**  ( ~$340/month).
 
 ### Development Environment
 **Cost-optimized for learning:**
