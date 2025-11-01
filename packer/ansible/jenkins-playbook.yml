@@ -83,7 +83,42 @@
         name: helm
         state: present
       #
-      # Verification will be added here later
+      # Verification
+    - name: Verify Docker installation
+      ansible.builtin.command: docker --version
+      register: docker_version
+      changed_when: false
+      failed_when: docker_version.rc != 0
+    - name: Verify Java installation
+      ansible.builtin.command: java -version
+      register: java_version
+      changed_when: false
+      failed_when: java_version.rc != 0
+    - name: Verify Git installation
+      ansible.builtin.command: git --version
+      register: git_version
+      changed_when: false
+      failed_when: git_version.rc != 0
+    - name: Verify Jenkins installation
+      ansible.builtin.command: jenkins --version
+      register: jenkins_version
+      changed_when: false
+      failed_when: jenkins_version.rc != 0
+    - name: Verify kubectl installation
+      ansible.builtin.command: kubectl version --client
+      register: kubectl_version
+      changed_when: false
+      failed_when: kubectl_version.rc != 0
+    - name: Verify Helm installation
+      ansible.builtin.command: helm version
+      register: helm_version
+      changed_when: false
+      failed_when: helm_version.rc != 0
+    - name: Verify AWS CLI installation
+      ansible.builtin.command: aws --version
+      register: aws_version
+      changed_when: false
+      failed_when: aws_version.rc != 0
       #
       # Cleanup
     - name: Remove unused packages
