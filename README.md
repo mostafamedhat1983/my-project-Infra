@@ -33,8 +33,8 @@ Two complete environments: **Development** (~$180/month) and **Production** (~$3
 ## 🛠️ What Makes This Different
 
 **Security Hardening:**
-- EBS, RDS, and EKS secrets encryption (initially missing)
-- Disabled EKS public endpoint, using SSM for access
+- EBS, RDS, and EKS secrets encryption
+- Private EKS endpoint, accessed via Jenkins EC2 using SSM
 - EKS audit logging enabled
 - Jenkins IAM restricted to specific cluster ARNs (not wildcard)
 
@@ -49,10 +49,10 @@ Two complete environments: **Development** (~$180/month) and **Production** (~$3
 - EKS Access Entry API (2023) - `authentication_mode = "API"` instead of aws-auth ConfigMap
 - ECR with IAM Authentication - no Docker Hub credentials needed
 - Secrets Manager bidirectional integration - Terraform reads and updates secrets
-- Flexible IAM Role Module - supports multiple services via `service` variable
+- Flexible IAM Role Module - single module reused for EC2 and EKS by changing `service` parameter
 
 **Intentional Design Decisions:**
-- Hardcoded AMI ID for stability (not "latest")
+- Packer-built AMI for consistency (not AWS "latest" AMI)
 - Jenkins admin policy for cluster infrastructure management
 - Unrestricted egress (restricting requires $50-100/month VPC endpoints)
 
@@ -97,6 +97,8 @@ packer init jenkins.pkr.hcl
 packer build jenkins.pkr.hcl
 ```
 
+**Output:** AMI ID saved to `packer/manifest.json` for Terraform reference
+
 **Benefits:** Consistency (no drift), speed (boot ready-to-use), security (vulnerabilities caught pre-deployment), testability, instant rollback.
 
 ## 🔐 Security Features
@@ -108,7 +110,7 @@ packer build jenkins.pkr.hcl
 - ✅ EKS control plane logging to CloudWatch
 - ✅ SSM Session Manager (no bastion host or SSH keys)
 - ✅ Secrets Manager for database credentials
-- ✅ KMS key rotation enabled
+- ✅ KMS key rotation enabled for EKS secrets encryption
 - ✅ S3 state versioning enabled
 
 **Zero Secret Exposure:**
@@ -117,7 +119,6 @@ packer build jenkins.pkr.hcl
 - Terraform reads via `data` source (no plaintext)
 - Passwords never in Git, code, state files, logs, or images
 - S3 versioning + native locking + encryption for state files
-- All AWS API calls use TLS 1.2+
 
 **Network Security:**
 - All workloads in private subnets
@@ -129,14 +130,17 @@ packer build jenkins.pkr.hcl
 
 ### NAT Gateway Strategy
 **Dev:** 1 NAT in us-east-2a (~$35/month) - acceptable risk for dev
+
 **Prod:** 2 NATs (~$70/month) - high availability, no cross-AZ traffic
 
 ### RDS Configuration
 **Dev:** Single-AZ, 20GB, 1-day backups, db.t3.micro, skip_final_snapshot
+
 **Prod:** Multi-AZ, 50GB, 7-day backups, db.t3.small, final snapshot enabled
 
 ### EKS Configuration
 **Dev:** 2x t3.small nodes (desired: 2, min: 1, max: 3), 20GB disk
+
 **Prod:** 3x t3.medium nodes (desired: 3, min: 2, max: 5), 30GB disk
 
 ### SSM Session Manager (No Bastion)
@@ -175,7 +179,7 @@ Prevents accidental access to other clusters, limits blast radius.
 ```hcl
 service = "ec2.amazonaws.com"  # or "eks.amazonaws.com"
 ```
-Single module supports multiple AWS services (DRY principle).
+Single IAM role module reused for EC2 and EKS by changing the `service` parameter (ec2.amazonaws.com vs eks.amazonaws.com). Follows DRY principle.
 
 ## 🚀 Deployment
 
@@ -261,7 +265,7 @@ Built with **Amazon Q** and **Gemini Code Assist** as productivity tools, not co
 
 ## 📝 Lessons Learned
 
-1. Hardcoded AMI = stability over always-latest
+1. Packer-built AMI = consistency and stability
 2. Dev environments can make reasonable cost tradeoffs
 3. Documentation matters for future-you
 4. Modular design saves time and reduces errors
