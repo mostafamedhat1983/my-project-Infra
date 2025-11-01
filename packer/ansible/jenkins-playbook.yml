@@ -31,6 +31,7 @@
         description: Jenkins stable repository
         baseurl: https://pkg.jenkins.io/redhat-stable/
         gpgcheck: true
+        gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
     - name: Install Jenkins
       ansible.builtin.dnf:
         name: jenkins
